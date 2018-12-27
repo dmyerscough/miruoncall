@@ -1,0 +1,8 @@
+Django==2.1.4
+django-celery==3.2.2
+django-rest-framework==0.1.0
+djangorestframework==3.9.0
+pip-tools==3.2.0
+pytz==2018.7
+requests==2.21.0
+six==1.12.0
