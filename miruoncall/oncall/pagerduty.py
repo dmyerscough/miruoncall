@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, timedelta
+
+from datetime import datetime
 from urllib.parse import urljoin
 
 from requests import Request, Session
 
 
 class RequestFailure(Exception):
+    pass
+
+
+class InvalidTimeRange(Exception):
     pass
 
 
@@ -36,7 +41,7 @@ class PagerDuty(object):
 
         session = Session()
 
-        request = Request(method=method, url=urljoin(self.PAGERDUTY_ENDPOINT, endpoint), data=payload, headers=headers)
+        request = Request(method=method, url=urljoin(self.PAGERDUTY_ENDPOINT, endpoint), params=payload, headers=headers)
 
         prep = session.prepare_request(request)
         resp = session.send(prep, timeout=timeout)
@@ -45,6 +50,22 @@ class PagerDuty(object):
             raise RequestFailure(f"Requesting: {endpoint} returned a status code: {resp.status_code}")
 
         return resp.json()
+
+    @staticmethod
+    def _check_date(since, until):
+        """
+        Basic datetime validation
+
+        :param since: PagerDutys since field
+        :param until: PagerDutys until field
+
+        :return: None
+        """
+        if since > until:
+            raise InvalidTimeRange("Since time cannot be newer than until time")
+
+        if since > datetime.utcnow() or until > datetime.utcnow():
+            raise InvalidTimeRange("Since and/or until cannot be set to a future time")
 
     def get_incidents(self, team_id, since, until, offset=25):
         """
@@ -57,18 +78,20 @@ class PagerDuty(object):
 
         :return: A generator of incidents
         """
+        self._check_date(since, until)
+
         payload = {
             'team_ids[]': team_id,
             'time_zone': 'UTC',
-            'since': since,
-            'until': until,
+            'since': since.isoformat(),
+            'until': until.isoformat(),
             'offset': 0,
         }
 
         while True:
             incidents = self._query(method='GET', endpoint='incidents', payload=payload)
 
-            yield incidents
+            yield incidents.get('incidents')
 
             payload['offset'] += offset
 
@@ -100,7 +123,7 @@ class PagerDuty(object):
         while True:
             teams = self._query(method='GET', endpoint='teams', payload=payload)
 
-            yield teams
+            yield teams.get('teams')
 
             payload['offset'] += offset
 
@@ -134,7 +157,7 @@ class PagerDuty(object):
         while True:
             schedule = self._query(method='GET', endpoint='schedules', payload=payload)
 
-            yield schedule
+            yield schedule.get('schedules')
 
             payload['offset'] += offset
 
@@ -151,29 +174,15 @@ class PagerDuty(object):
 
         :return: (dict) Finalized oncall schedule
         """
+        self._check_date(since, until)
+
         return self._query(
             method='GET',
             endpoint=f'schedules/{schedule_id}',
             payload={
                 'id': schedule_id,
                 'time_zone': 'UTC',
-                'since': since,
-                'until': until
+                'since': since.isoformat(),
+                'until': until.isoformat(),
             }
         )
-
-
-# if __name__ == '__main__':
-#
-#     s = PagerDuty('ujgvDDjLwhLSG2XaoRAj')
-#
-#     from pprint import pprint
-#
-#     # s.get_schedule('PFACU3Y')
-#
-#     start = datetime.utcnow() - timedelta(days=datetime.utcnow().isoweekday() % 7)
-#     end_ = datetime.utcnow()
-#
-#     # print(s.get_schedule('PV02P6C', since=start.isoformat(), until=end_.isoformat()))
-#     for incident in s.get_incidents('PFACU3Y', since=start, until=end_):
-#          print([i['incident_number'] for i in incident['incidents']])

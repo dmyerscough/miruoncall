@@ -15,12 +15,28 @@ class Annotations(models.Model):
         return f"{self.annotation}"
 
 
+class Team(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    name = models.TextField()
+    team_id = models.TextField()
+
+    summary = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_checked = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Incidents(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     title = models.TextField(max_length=25)
     description = models.TextField(max_length=100)
+    summary = models.TextField(max_length=100)
 
     status = models.TextField(max_length=12)
 
@@ -28,23 +44,12 @@ class Incidents(models.Model):
     created_at = models.DateTimeField()
 
     incident_id = models.TextField(max_length=20, unique=True)
-    triggered = models.DateTimeField()
 
-    annotation = models.ForeignKey(Annotations, on_delete=False)
+    annotation = models.ForeignKey(Annotations, on_delete=False, blank=True, null=True)
 
-    urgency = models.TextField()
+    urgency = models.TextField(max_length=15)
+
+    team = models.ForeignKey('Team', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.incident_id}"
-
-
-class Team(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    team = models.TextField()
-    schedule = models.TextField()
-
-    created_at = models.DateTimeField()
-
-    def __str__(self):
-        return f"{self.team}"

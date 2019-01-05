@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'miruoncall.wsgi.application'
 # CACHES = {
 #     "default": {
 #         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": os.getenv("REDIS_GENERIC_CACHE", "redis://127.0.0.1:6379/1"),  # noqa
+#         "LOCATION": os.getenv("REDIS_GENERIC_CACHE", "redis://127.0.0.1:6379/0"),  # noqa
 #         "OPTIONS": {
 #             "CLIENT_CLASS": "django_redis.client.DefaultClient",
 #             "SOCKET_CONNECT_TIMEOUT": 2,
@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'miruoncall.wsgi.application'
 #     },
 #     "sessions": {
 #         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": os.getenv("REDIS_SESSION_CACHE", "redis://127.0.0.1:6379/2"),  # noqa
+#         "LOCATION": os.getenv("REDIS_SESSION_CACHE", "redis://127.0.0.1:6379/1"),  # noqa
 #         "OPTIONS": {
 #             "CLIENT_CLASS": "django_redis.client.DefaultClient",
 #             "SOCKET_CONNECT_TIMEOUT": 2,
@@ -146,9 +146,31 @@ REST_FRAMEWORK = {
 }
 
 # Celery
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/3")  # noqa
-CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/3")  # noqa
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/2")  # noqa
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/2")  # noqa
 
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+# Logging
+LOGGING_CONFIG = None
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        # Redefining the logger for the `django` module
+        # prevents invoking the `AdminEmailHandler`
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    }
+}
