@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-
-from datetime import datetime
 from urllib.parse import urljoin
 
+from django.utils import timezone
 from requests import Request, Session
 
 
@@ -69,7 +68,7 @@ class PagerDuty(object):
         if since > until:
             raise InvalidTimeRange("Since time cannot be newer than until time")
 
-        if since > datetime.utcnow() or until > datetime.utcnow():
+        if since > timezone.now() or until > timezone.now():
             raise InvalidTimeRange("Since and/or until cannot be set to a future time")
 
     def get_incidents(self, team_id, since, until, offset=25):

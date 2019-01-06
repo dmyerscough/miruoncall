@@ -2,9 +2,12 @@
 
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from celery.task import task
+import dateutil.parser
+from django.utils import timezone
+
+from miruoncall.celery import app as celery_app
 
 from .models import Incidents, Team
 from .pagerduty import PagerDuty
@@ -12,8 +15,21 @@ from .pagerduty import PagerDuty
 logger = logging.getLogger(__name__)
 
 
-@task
-def populate_alerts(team, since, until):
+@celery_app.task(bind=True)
+def populate_alerts(self):
+    """
+    Trigger a celery job for each team to populate alerts
+    """
+    until = timezone.now()
+
+    for team in Team.objects.all():
+        _populate_alerts.delay(team_id=team.id, since=team.last_checked - timedelta(hours=2), until=until)
+
+    return True
+
+
+@celery_app.task(bind=True)
+def _populate_alerts(self, team_id, since, until):
     """
     Populate team alerts
 
@@ -25,10 +41,9 @@ def populate_alerts(team, since, until):
     """
     pyduty = PagerDuty(os.getenv('PAGERDUTY_KEY', 'ujgvDDjLwhLSG2XaoRAj'))
 
-    # since = datetime.utcnow() - timedelta(days=7)
-    # until = datetime.utcnow()
+    team = Team.objects.get(id=team_id)
 
-    for incidents in pyduty.get_incidents(team_id=team.team_id, since=since, until=until):
+    for incidents in pyduty.get_incidents(team_id=team.team_id, since=dateutil.parser.parse(since), until=dateutil.parser.parse(until)):
         for incident in incidents:
             _, created = Incidents.objects.get_or_create(
                 title=incident['title'],
@@ -44,11 +59,13 @@ def populate_alerts(team, since, until):
             if created:
                 logger.info(f"{incident['id']} has been created")
 
+    team.save()
+
     return True
 
 
-@task
-def populate_teams():
+@celery_app.task(bind=True)
+def populate_teams(self):
     """
     Populate team details
     """
