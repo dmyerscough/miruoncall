@@ -89,3 +89,4 @@ ENV/
 .idea/
 
 *.sqlite3
+*.db

@@ -41,7 +41,12 @@ class PagerDuty(object):
 
         session = Session()
 
-        request = Request(method=method, url=urljoin(self.PAGERDUTY_ENDPOINT, endpoint), params=payload, headers=headers)
+        request = Request(
+            method=method,
+            url=urljoin(self.PAGERDUTY_ENDPOINT, endpoint),
+            params=payload,
+            headers=headers
+        )
 
         prep = session.prepare_request(request)
         resp = session.send(prep, timeout=timeout)

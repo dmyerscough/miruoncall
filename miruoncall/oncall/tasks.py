@@ -4,12 +4,15 @@ import logging
 import os
 from datetime import datetime, timedelta
 
+from celery.task import task
+
 from .models import Incidents, Team
 from .pagerduty import PagerDuty
 
 logger = logging.getLogger(__name__)
 
 
+@task
 def populate_alerts(team, since, until):
     """
     Populate team alerts
@@ -44,6 +47,7 @@ def populate_alerts(team, since, until):
     return True
 
 
+@task
 def populate_teams():
     """
     Populate team details

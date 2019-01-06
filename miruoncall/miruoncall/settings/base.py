@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+from celery.schedules import crontab
+
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..', '..')
 
 DJANGO_APPS = (
@@ -146,12 +148,20 @@ REST_FRAMEWORK = {
 }
 
 # Celery
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/2")  # noqa
+BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/2")  # noqa
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/2")  # noqa
 
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+CELERYBEAT_SCHEDULE = {
+    'populate_teams': {
+        'task': 'oncall.tasks.populate_teams',
+        'schedule': crontab(minute='*/1'),
+    }
+}
 
 # Logging
 LOGGING_CONFIG = None
