@@ -2,7 +2,6 @@
 
 import logging
 import os
-from datetime import timedelta
 
 import dateutil.parser
 from django.utils import timezone
@@ -23,7 +22,7 @@ def populate_alerts(self):
     until = timezone.now()
 
     for team in Team.objects.all():
-        _populate_alerts.delay(team_id=team.id, since=team.last_checked - timedelta(hours=2), until=until)
+        _populate_alerts.delay(team_id=team.id, since=team.last_checked, until=until)
 
     return True
 
