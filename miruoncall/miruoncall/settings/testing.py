@@ -30,7 +30,8 @@ NOSE_ARGS = [
     '--with-coverage',
     '--cover-package=oncall',
     '--cover-html',
-    '--verbosity=1'
+    '--cover-inclusive',
+    '--verbosity=3'
 ]
 
 MIDDLEWARE.append(  # noqa
