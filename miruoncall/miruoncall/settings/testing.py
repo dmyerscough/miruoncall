@@ -26,12 +26,12 @@ INSTALLED_APPS += THIRD_PARTY_DEBUG_APPS  # noqa
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-# NOSE_ARGS = [
-#     '--with-coverage',
-#     '--cover-package=oncall',
-#     '--cover-html',
-#     '--verbosity=1'
-# ]
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=oncall',
+    '--cover-html',
+    '--verbosity=1'
+]
 
 MIDDLEWARE.append(  # noqa
     'debug_toolbar.middleware.DebugToolbarMiddleware'
