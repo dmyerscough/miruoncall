@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+from celery.schedules import crontab
+
 BASE_DIR = os.path.join(os.path.dirname(__file__), '..', '..')
 
 DJANGO_APPS = (
@@ -68,31 +70,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'miruoncall.wsgi.application'
 
-# SESSION_CACHE_ALIAS = "sessions"
-# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-#
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": os.getenv("REDIS_GENERIC_CACHE", "redis://127.0.0.1:6379/1"),  # noqa
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#             "SOCKET_CONNECT_TIMEOUT": 2,
-#             "SOCKET_TIMEOUT": 2,
-#             "CONNECTION_POOL_KWARGS": {"max_connections": 50},
-#         }
-#     },
-#     "sessions": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": os.getenv("REDIS_SESSION_CACHE", "redis://127.0.0.1:6379/2"),  # noqa
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#             "SOCKET_CONNECT_TIMEOUT": 2,
-#             "SOCKET_TIMEOUT": 2,
-#             "CONNECTION_POOL_KWARGS": {"max_connections": 50},
-#         }
-#     }
-# }
+SESSION_CACHE_ALIAS = 'sessions'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_GENERIC_CACHE', 'redis://127.0.0.1:6379/0'),  # noqa
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 2,
+            'SOCKET_TIMEOUT': 2,
+            'CONNECTION_POOL_KWARGS': {'max_connections': 50},
+        }
+    },
+    'sessions': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_SESSION_CACHE', 'redis://127.0.0.1:6379/1'),  # noqa
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 2,
+            'SOCKET_TIMEOUT': 2,
+            'CONNECTION_POOL_KWARGS': {'max_connections': 50},
+        }
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -146,9 +148,43 @@ REST_FRAMEWORK = {
 }
 
 # Celery
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/3")  # noqa
-CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/3")  # noqa
+BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/2')  # noqa
+CELERY_RESULT_BACKEND = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/2')  # noqa
 
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+CELERYBEAT_SCHEDULE = {
+    'populate_teams': {
+        'task': 'oncall.tasks.populate_teams',
+        'schedule': crontab(minute='*/1'),
+    },
+    'populate_alerts': {
+        'task': 'oncall.tasks.populate_alerts',
+        'schedule': crontab(minute='*/1'),
+    }
+}
+
+# Logging
+LOGGING_CONFIG = None
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        # Redefining the logger for the `django` module
+        # prevents invoking the `AdminEmailHandler`
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    }
+}
