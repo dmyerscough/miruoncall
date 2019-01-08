@@ -90,3 +90,5 @@ ENV/
 
 *.sqlite3
 *.db
+
+Library/*

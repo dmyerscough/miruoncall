@@ -4,9 +4,9 @@ import types
 import unittest
 
 import dateutil.parser
-from mock import patch
+from mock import PropertyMock, patch
 
-from oncall.pagerduty import PagerDuty
+from oncall.pagerduty import PagerDuty, RequestFailure
 
 
 class TestPagerDuty(unittest.TestCase):
@@ -292,16 +292,71 @@ class TestPagerDuty(unittest.TestCase):
             }
         )
 
-    @unittest.skip('Need to implement')
-    def test_query(self):
+    @patch('oncall.pagerduty.Request')
+    @patch('oncall.pagerduty.Session')
+    def test_query(self, mock_session, mock_request):
         """
         Test making HTTPS queries to PagerDuty
         """
-        pass
+        mock_request.json.return_value = {}
 
-    @unittest.skip('Need to implement')
-    def test_query_failure(self):
+        mock_status = PropertyMock(return_value=200)
+        type(mock_session).status_code = mock_status
+
+        mock_session.send.return_value = mock_session
+
+        mock_session.return_value = mock_session
+
+        pyduty = PagerDuty('abc123')
+        team = pyduty.get_teams()
+
+        next(team)
+
+        mock_request.assert_called_once_with(
+            headers={
+                'Accept': 'application/vnd.pagerduty+json;version=2',
+                'Authorization': 'Token token=abc123'
+            },
+            method='GET',
+            params={
+                'offset': 0
+            },
+            url='https://api.pagerduty.com/teams'
+        )
+
+    @patch('oncall.pagerduty.Request')
+    @patch('oncall.pagerduty.Session')
+    def test_query_failure(self, mock_session, mock_request):
         """
         Test failing to query PagerDuty
         """
-        pass
+        mock_request.json.return_value = {
+            "error": {
+                "message": "Your account is expired and cannot use the API.",
+                "code": 2012
+            }
+        }
+
+        mock_status = PropertyMock(return_value=401)
+        type(mock_session).status_code = mock_status
+
+        mock_session.send.return_value = mock_session
+
+        mock_session.return_value = mock_session
+
+        pyduty = PagerDuty('abc123')
+        team = pyduty.get_teams()
+
+        self.assertRaises(RequestFailure, next, team)
+
+        mock_request.assert_called_once_with(
+            headers={
+                'Accept': 'application/vnd.pagerduty+json;version=2',
+                'Authorization': 'Token token=abc123'
+            },
+            method='GET',
+            params={
+                'offset': 0
+            },
+            url='https://api.pagerduty.com/teams'
+        )
