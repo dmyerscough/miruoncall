@@ -51,7 +51,9 @@ class PagerDuty(object):
         resp = session.send(prep, timeout=timeout)
 
         if resp.status_code != 200:
-            raise RequestFailure(f"Requesting: {endpoint} returned a status code: {resp.status_code}")
+            raise RequestFailure(
+                f'/{endpoint} returned a status code: {resp.status_code} ({resp.json().get("error", {}).get("message")})'
+            )
 
         return resp.json()
 
