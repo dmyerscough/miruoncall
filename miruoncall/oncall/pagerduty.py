@@ -97,7 +97,7 @@ class PagerDuty(object):
         while True:
             incidents = self._query(method='GET', endpoint='incidents', payload=payload)
 
-            yield incidents.get('incidents')
+            yield incidents.get('incidents', [])
 
             payload['offset'] += offset
 
@@ -129,7 +129,7 @@ class PagerDuty(object):
         while True:
             teams = self._query(method='GET', endpoint='teams', payload=payload)
 
-            yield teams.get('teams')
+            yield teams.get('teams', [])
 
             payload['offset'] += offset
 
@@ -163,7 +163,7 @@ class PagerDuty(object):
         while True:
             schedule = self._query(method='GET', endpoint='schedules', payload=payload)
 
-            yield schedule.get('schedules')
+            yield schedule.get('schedules', [])
 
             payload['offset'] += offset
 
