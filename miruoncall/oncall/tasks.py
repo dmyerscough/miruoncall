@@ -7,9 +7,8 @@ import dateutil.parser
 from django.utils import timezone
 
 from miruoncall.celery import app as celery_app
-
-from .models import Incidents, Team
-from .pagerduty import PagerDuty, RequestFailure
+from oncall.models import Incidents, Team
+from oncall.pagerduty import PagerDuty, RequestFailure
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +37,7 @@ def _populate_alerts(self, team_id, since, until):
 
     :return: (bool) successful
     """
-    pyduty = PagerDuty(os.getenv('PAGERDUTY_KEY', 'ujgvDDjLwhLSG2XaoRAj'))
+    pyduty = PagerDuty(os.getenv('PAGERDUTY_KEY'))
 
     team = Team.objects.get(id=team_id)
 
@@ -46,10 +45,10 @@ def _populate_alerts(self, team_id, since, until):
         for incidents in pyduty.get_incidents(team_id=team.team_id, since=dateutil.parser.parse(since), until=dateutil.parser.parse(until)):
             for incident in incidents:
                 _, created = Incidents.objects.get_or_create(
-                    title=incident['title'],
-                    description=incident['description'],
-                    summary=incident['summary'],
-                    status=incident['status'],
+                    title=incident.get('title', 'No title'),
+                    description=incident.get('description', 'No description'),
+                    summary=incident.get('summary', 'No summary'),
+                    status=incident.get('status', 'No status'),
                     created_at=incident['created_at'],
                     incident_id=incident['id'],
                     urgency=incident['urgency'],
@@ -73,7 +72,7 @@ def populate_teams(self):
     """
     Populate team details
     """
-    pyduty = PagerDuty(os.getenv('PAGERDUTY_KEY', 'ujgvDDjLwhLSG2XaoRAj'))
+    pyduty = PagerDuty(os.getenv('PAGERDUTY_KEY'))
 
     try:
         for teams in pyduty.get_teams():
