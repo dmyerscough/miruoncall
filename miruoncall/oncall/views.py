@@ -19,7 +19,7 @@ class Oncall(APIView):
 
     # permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def get(self, request, team_id):
         """
         List all incidents
         """
@@ -32,10 +32,10 @@ class Oncall(APIView):
             return JsonResponse({'error': 'Invalid date format YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
 
         if since > until:
-            return JsonResponse({'error': 'Since cannot be newer than until'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'since cannot be newer than until'}, status=status.HTTP_400_BAD_REQUEST)
 
         incidents = Incidents.objects.filter(
-            created_at__range=[since.replace(tzinfo=pytz.UTC), until.replace(tzinfo=pytz.UTC)]
+            created_at__range=[since.replace(tzinfo=pytz.UTC), until.replace(tzinfo=pytz.UTC)], team__id=team_id
         ).order_by('-created_at')
 
         for incident in incidents:
@@ -50,6 +50,9 @@ class Oncall(APIView):
         )
 
     def post(self, request):
+        """
+        Update incidents with annotations
+        """
         pass
 
     def delete(self, request):

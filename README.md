@@ -25,8 +25,10 @@ DJANGO_SETTINGS_MODULE='miruoncall.settings.testing' celery -A miruoncall worker
 
 ## Query Incidents
 
+Query all incidents for the `88e406ab39e04d7bb92b8ca2bd4cff98` team
+
 ```bash
-$ curl -s -X GET -H "Content-Type: application/json" -d '{"since": "2018-12-20", "until": "2018-12-30"}' http://127.0.0.1:8000/incidents/  | jq .
+$ curl -s -X GET -H "Content-Type: application/json" -d '{"since": "2018-12-20", "until": "2018-12-30"}' http://127.0.0.1:8000/incidents/88e406ab39e04d7bb92b8ca2bd4cff98  | jq .
 {
   "incidents": [
     {
