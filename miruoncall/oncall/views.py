@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from datetime import timedelta
 
 import dateutil.parser
@@ -11,8 +12,10 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from oncall.models import Incidents
+from oncall.models import Annotations, Incidents
 from oncall.serializer import IncidentSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class Oncall(APIView):
@@ -49,11 +52,36 @@ class Oncall(APIView):
             }, status=status.HTTP_200_OK
         )
 
-    def post(self, request):
+    def post(self, request, team_id):
         """
         Update incidents with annotations
         """
-        pass
+        incident_ids = request.data.get('incident_ids')
+        annotation_message = request.data.get('annotation')
+        actionable = request.data.get('actionable')
 
-    def delete(self, request):
-        pass
+        if incident_ids is None:
+            return JsonResponse({'error': 'incident_ids is a required argument'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if annotation_message is not None:
+            annotation = Annotations.objects.create(
+                annotation=annotation_message,
+            )
+
+        for incident_id in incident_ids.replace(' ', '').split(','):
+            try:
+                incident = Incidents.objects.get(id=incident_id, team__id=team_id)
+
+                if annotation_message is not None:
+                    incident.annotation = annotation
+
+                if actionable is not None:
+                    incident.actionable = actionable
+
+                incident.save()
+            except ValueError:
+                logger.error(f'Invalid incident id: {incident_id}')
+            except Incidents.DoesNotExist:
+                logger.error(f'Incident {incident_id} does not exist')
+
+        return JsonResponse({'message': 'successfully updated'}, status=status.HTTP_200_OK)

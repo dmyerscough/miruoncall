@@ -9,7 +9,7 @@ class Annotations(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     annotation = models.TextField(max_length=255)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.annotation}"

@@ -63,3 +63,17 @@ $ curl -s -X GET -H "Content-Type: application/json" -d '{"since": "2018-12-20",
   }
 }
 ```
+
+## Create an annotation for an incident
+
+Create an annotation for the incident `3cec1b1c-9fa5-4943-baec-b81c65b801b1`
+
+```bash
+$ curl -s -X POST -H "Content-Type: application/json" -d '{"incident_ids": "3cec1b1c-9fa5-4943-baec-b81c65b801b1", "annotation": "This is a simple annotation", "actionable": true}' http://127.0.0.1:8000/incidents/88e406ab39e04d7bb92b8ca2bd4cff98
+```
+
+Only update the incident to specify if the incident was actionable
+
+```bash
+$ curl -s -X POST -H "Content-Type: application/json" -d '{"incident_ids801b1", "actionable": true}' http://127.0.0.1:8000/incidents/88e406ab39e04d7bb92b8ca2bd4cff98
+```
