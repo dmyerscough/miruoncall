@@ -64,7 +64,7 @@ class Oncall(APIView):
             return JsonResponse({'error': 'incident_ids is a required argument'}, status=status.HTTP_400_BAD_REQUEST)
 
         if annotation_message is not None:
-            annotation = Annotations.objects.create(
+            annotation = Annotations.objects.get_or_create(
                 annotation=annotation_message,
             )
 

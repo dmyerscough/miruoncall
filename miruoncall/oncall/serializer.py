@@ -10,7 +10,7 @@ class AnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Annotations
 
-        fields = ('id', 'annotation', 'created_at')
+        fields = ('annotation', 'created_at')
 
 
 class IncidentSerializer(serializers.ModelSerializer):
