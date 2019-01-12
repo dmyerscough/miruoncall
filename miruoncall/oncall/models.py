@@ -9,7 +9,7 @@ class Annotations(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     annotation = models.TextField(max_length=255)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.annotation}"
@@ -21,7 +21,7 @@ class Team(models.Model):
     name = models.TextField()
     team_id = models.TextField()
 
-    summary = models.TextField()
+    summary = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     last_checked = models.DateTimeField(auto_now=True)

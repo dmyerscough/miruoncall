@@ -31,7 +31,7 @@ NOSE_ARGS = [
     '--cover-package=oncall',
     '--cover-html',
     '--cover-inclusive',
-    '--verbosity=3',
+    '--verbosity=1',
     '-s',
 ]
 
