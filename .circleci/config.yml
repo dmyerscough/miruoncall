@@ -1,0 +1,12 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6
+      - image: redis:3
+    steps:
+      - checkout
+      - run:
+          command: |
+            python3 -m venv venv && source venv/bin/activate && pip install tox && tox
