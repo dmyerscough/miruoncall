@@ -75,5 +75,5 @@ $ curl -s -X POST -H "Content-Type: application/json" -d '{"incident_ids": "3cec
 Only update the incident to specify if the incident was actionable
 
 ```bash
-$ curl -s -X POST -H "Content-Type: application/json" -d '{"incident_ids801b1", "actionable": true}' http://127.0.0.1:8000/incidents/88e406ab39e04d7bb92b8ca2bd4cff98
+$ curl -s -X POST -H "Content-Type: application/json" -d '{"actionable": true}' http://127.0.0.1:8000/incidents/88e406ab39e04d7bb92b8ca2bd4cff98
 ```

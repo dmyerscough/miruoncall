@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 import uuid
+from unittest import skip
 
+from django.test import TestCase
 from django.utils import timezone
 from mock import MagicMock, patch
 
@@ -10,7 +11,7 @@ from oncall.models import Incidents, Team
 from oncall.tasks import _populate_alerts, populate_alerts, populate_teams
 
 
-class TestCeleryTasks(unittest.TestCase):
+class TestCeleryTasks(TestCase):
 
     @patch('oncall.tasks._populate_alerts')
     def test_populate_alerts(self, mock_populate_alerts):
@@ -61,6 +62,14 @@ class TestCeleryTasks(unittest.TestCase):
 
         current_time = timezone.now()
 
+        with patch.object(timezone, 'now', return_value=current_time):
+            Team.objects.create(
+                id='b322c6ab-3170-4ff2-b4d8-34d0a4371c9d',
+                name='PANW',
+                team_id='PANW123',
+                summary='PANW SRE'
+            )
+
         self.assertTrue(
             _populate_alerts(team_id='b322c6ab-3170-4ff2-b4d8-34d0a4371c9d', since=current_time.isoformat(), until=current_time.isoformat())
         )
@@ -72,7 +81,7 @@ class TestCeleryTasks(unittest.TestCase):
         self.assertEqual(incident.summary, '[#1234] The server is on fire.')
         self.assertEqual(incident.description, 'No description')
 
-    @unittest.skip('Needs implemented')
+    @skip('Needs implemented')
     def test_populate_alerts_request_failure(self):
         pass
 
@@ -100,6 +109,6 @@ class TestCeleryTasks(unittest.TestCase):
 
         self.assertTrue(populate_teams())
 
-    @unittest.skip('Needs implemented')
+    @skip('Needs implemented')
     def test_populate_teams_request_failure(self):
         pass

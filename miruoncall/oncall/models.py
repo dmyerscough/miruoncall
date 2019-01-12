@@ -21,7 +21,7 @@ class Team(models.Model):
     name = models.TextField()
     team_id = models.TextField()
 
-    summary = models.TextField()
+    summary = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     last_checked = models.DateTimeField(auto_now=True)
