@@ -115,7 +115,7 @@ class TestOncallView(TestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), {
-            'incident_count': {'2019-01-12': 1},
+            'incident_count': {self.creation_time.strftime('%Y-%m-%d'): 1},
             'incidents': [
                     {
                         'actionable': False,
@@ -170,7 +170,7 @@ class TestOncallView(TestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), {
-            'incident_count': {'2019-01-12': 2},
+            'incident_count': {self.creation_time.strftime('%Y-%m-%d'): 2},
             'incidents': [
                 {
                     'actionable': True,
