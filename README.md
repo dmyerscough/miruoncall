@@ -77,3 +77,10 @@ Only update the incident to specify if the incident was actionable
 ```bash
 $ curl -s -X POST -H "Content-Type: application/json" -d '{"actionable": true}' http://127.0.0.1:8000/incidents/88e406ab39e04d7bb92b8ca2bd4cff98
 ```
+
+# Building Docker Image
+
+```bash
+$ docker build -t quay.io/dmyerscough/miruoncall:0.0.1 .
+$ docker push quay.io/dmyerscough/miruoncall:0.0.1
+```
