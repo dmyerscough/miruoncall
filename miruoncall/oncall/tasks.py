@@ -91,3 +91,33 @@ def populate_teams(self):
         return False
 
     return True
+
+
+@celery_app.task(bind=True)
+def update_incidents(self):
+    """
+    Check the status on unresolved tickets
+    """
+    for incident in Incidents.objects.all().exclude(status='resolved'):
+        _update_incident.delay(incident_id=incident.id)
+
+    return True
+
+
+@celery_app.task(bind=True)
+def _update_incident(self, incident_id):
+    """
+    Check the status of a ticket and update the status
+    """
+    pyduty = PagerDuty(os.getenv('PAGERDUTY_KEY'))
+
+    incident = Incidents.objects.get(id=incident_id)
+    resp = pyduty.get_incident(incident_id=incident.incident_id)
+
+    if resp['status'] != incident.status:
+        logger.info(f'Updated incident {incident.incident_id} with the new status {resp["status"]}')
+
+        incident.status = resp['status']
+        incident.save()
+
+    return True

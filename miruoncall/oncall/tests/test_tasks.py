@@ -8,7 +8,8 @@ from django.utils import timezone
 from mock import MagicMock, patch
 
 from oncall.models import Incidents, Team
-from oncall.tasks import _populate_alerts, populate_alerts, populate_teams
+from oncall.tasks import (_populate_alerts, _update_incident, populate_alerts,
+                          populate_teams, update_incidents)
 
 
 class TestCeleryTasks(TestCase):
@@ -112,3 +113,75 @@ class TestCeleryTasks(TestCase):
     @skip('Needs implemented')
     def test_populate_teams_request_failure(self):
         pass
+
+    @patch('oncall.tasks.PagerDuty')
+    def test_update_incident_helper_status_mismatch(self, mock_incident):
+        """
+        Test incident helper when the status does not match the status stored in the database
+        """
+        mock_incident_ = MagicMock()
+        mock_incident_.get_incident.return_value = {
+            'id': 'PT4KHLK',
+            'type': 'incident',
+            'summary': '[#1234] The server is on fire.',
+            'self': 'https://api.pagerduty.com/incidents/PT4KHLK',
+            'html_url': 'https://subdomain.pagerduty.com/incidents/PT4KHLK',
+            'incident_number': 1234,
+            'created_at': '2015-10-06T21:30:42Z',
+            'status': 'resolved',
+            'title': 'The server is on fire.',
+            'urgency': 'high'
+        }
+
+        mock_incident.return_value = mock_incident_
+
+        Incidents.objects.create(
+            id='96e3d488-52b8-4b86-906e-8bc5b3b7504b',
+            title='Down Replica DB',
+            description='Down Replica DB',
+            summary='Down Replica DB',
+            status='triggered',
+            created_at=timezone.now(),
+            incident_id='PT4KHLK',
+            urgency='high',
+            team=Team.objects.create(
+                name='PANW SRE',
+                team_id='PANW',
+                summary='The Oncall Team for XYZ',
+            )
+        )
+
+        self.assertTrue(_update_incident('96e3d488-52b8-4b86-906e-8bc5b3b7504b'))
+        self.assertEqual(Incidents.objects.get(id='96e3d488-52b8-4b86-906e-8bc5b3b7504b').status, 'resolved')
+
+        mock_incident_.get_incident.assert_called_once_with(incident_id='PT4KHLK')
+
+    @patch('oncall.tasks._update_incident')
+    def test_update_incident(self, mock_update_incident):
+        """
+        Test updaing an incident that is not marked as resolved
+        """
+        current_time = timezone.now()
+
+        with patch.object(timezone, 'now', return_value=current_time):
+            Incidents.objects.create(
+                id='96e3d488-52b8-4b86-906e-8bc5b3b7504b',
+                title='Down Replica DB',
+                description='Down Replica DB',
+                summary='Down Replica DB',
+                status='triggered',
+                created_at=timezone.now(),
+                incident_id='PT4KHLK',
+                urgency='high',
+                team=Team.objects.create(
+                    name='PANW SRE',
+                    team_id='PANW',
+                    summary='The Oncall Team for XYZ',
+                )
+            )
+
+            self.assertTrue(update_incidents())
+
+        mock_update_incident.delay.assert_called_once_with(
+            incident_id=uuid.UUID('96e3d488-52b8-4b86-906e-8bc5b3b7504b'),
+        )
