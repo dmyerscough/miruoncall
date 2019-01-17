@@ -28,7 +28,7 @@ def populate_alerts(self):
     return True
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, autoretry_for=(Exception,), exponential_backoff=2, retry_kwargs={'max_retries': 3}, retry_jitter=False)
 def _populate_alerts(self, team_id, since, until):
     """
     Populate team alerts
@@ -69,7 +69,7 @@ def _populate_alerts(self, team_id, since, until):
     return True
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, autoretry_for=(Exception,), exponential_backoff=2, retry_kwargs={'max_retries': 3}, retry_jitter=False)
 def populate_teams(self):
     """
     Populate team details
@@ -113,7 +113,7 @@ def update_incidents(self):
     return True
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, autoretry_for=(Exception,), exponential_backoff=2, retry_kwargs={'max_retries': 3}, retry_jitter=False)
 def _update_incident(self, incident_id):
     """
     Check the status of a ticket and update the status
