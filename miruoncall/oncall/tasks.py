@@ -2,8 +2,10 @@
 
 import logging
 import os
+from datetime import timedelta
 
 import dateutil.parser
+from django.conf import settings
 from django.utils import timezone
 
 from miruoncall.celery import app as celery_app
@@ -77,7 +79,7 @@ def populate_teams(self):
     try:
         for teams in pyduty.get_teams():
             for team in teams:
-                _, created = Team.objects.get_or_create(
+                team_, created = Team.objects.get_or_create(
                     name=team['name'],
                     team_id=team['id'],
                     summary=team['summary'],
@@ -85,6 +87,13 @@ def populate_teams(self):
 
                 if created:
                     logger.info(f"{team['name']} has been created")
+
+                    if settings.INITIAL_INCIDENT_LOOKBACK is not None:
+                        # When the team bootstrap occurs query the past X days for incidents
+                        Team.objects.filter(id=team_.id).update(
+                            last_checked=team_.last_checked - timedelta(days=settings.INITIAL_INCIDENT_LOOKBACK)
+                        )
+
     except RequestFailure as err:
         logger.error(f'Failed to query PagerDuty: {err}')
 

@@ -159,13 +159,16 @@ CELERY_TIMEZONE = 'UTC'
 CELERYBEAT_SCHEDULE = {
     'populate_teams': {
         'task': 'oncall.tasks.populate_teams',
-        'schedule': crontab(minute='*/1'),
+        'schedule': crontab(minute='*/30'),
     },
     'populate_alerts': {
         'task': 'oncall.tasks.populate_alerts',
-        'schedule': crontab(minute='*/1'),
+        'schedule': crontab(minute='*/5'),
     }
 }
+
+# On the initial team query how far back should we look for incidents
+INITIAL_INCIDENT_LOOKBACK = 7
 
 # Logging
 LOGGING_CONFIG = None
