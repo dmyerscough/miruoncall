@@ -164,10 +164,14 @@ CELERYBEAT_SCHEDULE = {
     'populate_alerts': {
         'task': 'oncall.tasks.populate_alerts',
         'schedule': crontab(minute='*/5'),
+    },
+    'incident_status': {
+        'task': 'oncall.tasks.update_incidents',
+        'schedule': crontab(minute='*/5'),
     }
 }
 
-# On the initial team query how far back should we look for incidents
+# On the initial import of the team, how far back should we query for incidents. Setting this value to `None` or 0 will exclude look back
 INITIAL_INCIDENT_LOOKBACK = 7
 
 # Logging

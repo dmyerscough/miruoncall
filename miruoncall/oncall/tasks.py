@@ -124,7 +124,7 @@ def _update_incident(self, incident_id):
     resp = pyduty.get_incident(incident_id=incident.incident_id)
 
     if resp['status'] != incident.status:
-        logger.info(f'Updated incident {incident.incident_id} with the new status {resp["status"]}')
+        logger.info(f'Updated incident {incident.incident_id} with the new status of {resp["status"]}')
 
         incident.status = resp['status']
         incident.save()
