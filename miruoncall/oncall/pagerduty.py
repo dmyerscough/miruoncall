@@ -112,7 +112,7 @@ class PagerDuty(object):
 
         :return: (dict) incident details
         """
-        return self._query(method='GET', endpoint=f'incidents/{incident_id}')
+        return self._query(method='GET', endpoint=f'incidents/{incident_id}').get('incident', {})
 
     def get_teams(self, offset=25):
         """
