@@ -5,15 +5,18 @@ from datetime import timedelta
 
 import dateutil.parser as dtparse
 import pytz
+from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.utils import timezone
+from redis.exceptions import ConnectionError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from oncall.models import Annotations, Incidents, Team
-from oncall.serializer import IncidentSerializer
+from oncall.serializer import IncidentSerializer, TeamSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -95,3 +98,29 @@ class Oncall(APIView):
                 return JsonResponse({'error': f'Incident {incident_id} does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse({'message': 'successfully updated'}, status=status.HTTP_200_OK)
+
+
+class Teams(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        """
+        List all teams
+        """
+        teams = None
+
+        try:
+            teams = cache.get('teams')
+        except ConnectionError:
+            logger.error('Unable to connect to redis')
+
+        if teams is None:
+            teams = Team.objects.all()
+
+            try:
+                cache.set('teams', teams, settings.DEFAULT_CACHE_TIME)
+            except ConnectionError:
+                logger.error('Unable to connect to redis')
+
+        return JsonResponse({'teams': TeamSerializer(teams, many=True).data}, status=status.HTTP_200_OK)

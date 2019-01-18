@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from oncall.models import Annotations, Incidents
+from oncall.models import Annotations, Incidents, Team
 
 
 class AnnotationSerializer(serializers.ModelSerializer):
@@ -21,3 +21,11 @@ class IncidentSerializer(serializers.ModelSerializer):
         model = Incidents
 
         fields = ('id', 'title', 'description', 'summary', 'status', 'actionable', 'created_at', 'incident_id', 'annotation', 'urgency')
+
+
+class TeamSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Team
+
+        fields = ('id', 'name')
