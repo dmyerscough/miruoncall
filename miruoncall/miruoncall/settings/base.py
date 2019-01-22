@@ -96,6 +96,8 @@ CACHES = {
     }
 }
 
+DEFAULT_CACHE_TIME = 300  # Default cache of 300 seconds
+
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
