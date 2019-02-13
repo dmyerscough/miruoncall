@@ -112,7 +112,7 @@ class TestOncallView(TestCase):
         resp = self.client.get(
             reverse('incidents', kwargs={'team_id': '7de98e0c-8bf9-414c-b397-05acb136935e'})
         )
-
+        self.maxDiff = None
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), {
             'incident_count': {self.creation_time.strftime('%Y-%m-%d'): 1},
@@ -121,7 +121,8 @@ class TestOncallView(TestCase):
                         'actionable': False,
                         'annotation': {
                             'annotation': 'Rebooted server',
-                            'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+                            'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                            'created_by': 'DamianMyerscough'
                         },
                         'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                         'description': 'Down Master DB',
@@ -176,7 +177,8 @@ class TestOncallView(TestCase):
                     'actionable': True,
                     'annotation': {
                         'annotation': 'Rebooted server',
-                        'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+                        'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        'created_by': 'DamianMyerscough'
                     },
                     'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'description': 'Down Master DB',
@@ -191,7 +193,8 @@ class TestOncallView(TestCase):
                     'actionable': True,
                     'annotation': {
                         'annotation': 'Rebooted server',
-                        'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+                        'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        'created_by': 'DamianMyerscough'
                     },
                     'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'description': 'Down Replica DB',

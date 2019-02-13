@@ -1,6 +1,7 @@
 
 import uuid
 
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -10,6 +11,8 @@ class Annotations(models.Model):
 
     annotation = models.TextField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.annotation}"
