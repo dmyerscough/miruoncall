@@ -75,6 +75,7 @@ class Oncall(APIView):
         if annotation_message is not None:
             annotation, _ = Annotations.objects.get_or_create(
                 annotation=annotation_message,
+                created_by=request.user
             )
 
         for incident_id in incident_ids.replace(' ', '').split(','):

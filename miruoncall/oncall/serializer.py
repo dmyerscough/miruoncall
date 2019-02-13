@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from oncall.models import Annotations, Incidents, Team
@@ -7,10 +8,12 @@ from oncall.models import Annotations, Incidents, Team
 
 class AnnotationSerializer(serializers.ModelSerializer):
 
+    created_by = serializers.CharField(source='created_by.username')
+
     class Meta:
         model = Annotations
 
-        fields = ('annotation', 'created_at')
+        fields = ('annotation', 'created_at', 'created_by')
 
 
 class IncidentSerializer(serializers.ModelSerializer):
