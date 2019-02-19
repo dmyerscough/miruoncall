@@ -2,58 +2,7 @@ var App = (function () {
   'use strict';
 
   App.formElements = function( ){
-
-    //Js Code
-    $(".datetimepicker").datetimepicker({
-    	autoclose: true,
-    	componentIcon: '.mdi.mdi-calendar',
-    	navIcons:{
-    		rightIcon: 'mdi mdi-chevron-right',
-    		leftIcon: 'mdi mdi-chevron-left'
-    	}
-    });
-
-    //Date range picker
-
-    $(".daterange").daterangepicker();
-
-    $(".datetimerange").daterangepicker({
-        timePicker: true,
-        timePickerIncrement: 30,
-        locale: {
-            format: 'MM/DD/YYYY h:mm A'
-        }
-    });
-
-    var start = moment().subtract(7, 'days');
-    var end = moment();
-
-    function cb(start, end) {
-        $('.reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-    }
-
-    $('.reportrange').daterangepicker({
-        startDate: start,
-        endDate: end,
-        ranges: {
-           'Today': [moment(), moment()],
-           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-           'Last 7 Days': [moment().subtract(7, 'days'), moment()],
-           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-           'This Month': [moment().startOf('month'), moment().endOf('month')],
-           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        }
-    }, cb);
-
-    cb(start, end);
-
-    $("#previous").click(function() {
-      $('.reportrange').daterangepicker({
-        startDate: moment().subtract(14, 'days'),
-        endDate: moment().subtract(7, 'days')
-      });
-    });
-    
+ 
     //Select2
     $(".select2").select2({
       width: '100%',
@@ -107,13 +56,15 @@ var App = (function () {
     });
 
     function loadTable(data) {
+      var start = moment().subtract(7, 'days');
+      var end = moment();
       var nameType = $.fn.dataTable.absoluteOrder({
         value: 'resolved', position: 'bottom'
       });
       $("#table1").dataTable({
         destroy: true,
         ajax: {
-          url: '../incidents/' + data.id,
+          url: '/incidents/' + data.id + '/?since=' + start.format('YYYY-MM-DD')+"&until="+end.format('YYYY-MM-DD'),
           dataSrc: "incidents"
         },
         columnDefs: [

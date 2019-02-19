@@ -15,10 +15,13 @@ var App = (function () {
       value: 'resolved', position: 'bottom'
   } );
 
+    var start = moment().subtract(7, 'days');
+    var end = moment();
+
     $("#table1").dataTable({
       ajax: {
         
-        url: "http://192.168.1.144:8080/incidents/7f9021ed-cc15-4323-865b-6886f8e68263/",
+        url: "/incidents/7f9021ed-cc15-4323-865b-6886f8e68263/?since="+start.format('YYYY-MM-DD')+"&until="+end.format('YYYY-MM-DD'),
         dataSrc: "incidents",
         
       },
