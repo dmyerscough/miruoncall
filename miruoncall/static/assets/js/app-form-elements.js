@@ -27,34 +27,9 @@ var App = (function () {
     $('#teams').on('select2:select', function (e) {
       var data = e.params.data;
       loadTable(data);
+      loadIncidents();
   });
   
-    
-    //Bootstrap Slider
-    $('.bslider').bootstrapSlider();
-
-    // File input 
-    $( '.inputfile' ).each( function(){
-      var $input   = $( this ),
-        $label   = $input.next( 'label' ),
-        labelVal = $label.html();
-
-      $input.on( 'change', function( e )
-      {
-        var fileName = '';
-
-        if( this.files && this.files.length > 1 )
-          fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
-        else if( e.target.value )
-          fileName = e.target.value.split( '\\' ).pop();
-
-        if( fileName )
-          $label.find( 'span' ).html( fileName );
-        else
-          $label.html( labelVal );
-      });
-    });
-
     function loadTable(data) {
       var start = moment().subtract(7, 'days');
       var end = moment();
