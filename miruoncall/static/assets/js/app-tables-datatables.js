@@ -17,17 +17,19 @@ var App = (function () {
 
     var start = moment().subtract(7, 'days');
     var end = moment();
+    var teamID = $("#teams").find(":selected").val();
 
     $("#table1").dataTable({
       ajax: {
         
-        url: "/incidents/7f9021ed-cc15-4323-865b-6886f8e68263/?since="+start.format('YYYY-MM-DD')+"&until="+end.format('YYYY-MM-DD'),
+        url: "/incidents/"+ teamID+ "/?since="+start.format('YYYY-MM-DD')+"&until="+end.format('YYYY-MM-DD'),
         dataSrc: "incidents",
         
       },
       columnDefs: [
         {
-          targets: -1, data: null,  defaultContent: '', orderable: false, className: 'select-checkbox'
+          targets: -1, data: "Icon",  defaultContent: '', orderable: false, className: 'select-checkbox',
+          render : function (data, type, row) { return "<span class='icon mdi mdi-comment-edit'></span>" }
         },
         { targets: 2, type: nameType, orderable: false,
           "createdCell": function (td, cellData, rowData, row, col) {
