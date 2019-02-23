@@ -74,6 +74,35 @@ class TestOncallView(TestCase):
             }
         )
 
+    def test_listing_same_since_until(self):
+        """
+        Test specifying the same since and until date
+        """
+        resp = self.client.get(
+            reverse('incidents', kwargs={'team_id': '7de98e0c-8bf9-414c-b397-05acb136935e'}), {
+                'since': self.creation_time.strftime('%Y-%m-%d'), 'until': self.creation_time.strftime('%Y-%m-%d')
+            }
+        )
+
+        self.assertEqual(resp.json(), {
+            'incident_count': {self.creation_time.strftime('%Y-%m-%d'): 1},
+            'incidents': [
+                    {
+                        'actionable': True,
+                        'annotation': None,
+                        'created_at': self.creation_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        'description': 'Down Master DB',
+                        'id': '96e3d488-52b8-4b86-906e-8bc5b3b7504b',
+                        'incident_id': 'PIJK3SJ',
+                        'status': 'triggered',
+                        'summary': 'Down Master DB',
+                        'title': 'Down Master DB',
+                        'urgency': 'high'
+                    }
+                ]
+            }
+        )
+
     def test_listing_for_none_existent_team(self):
         """
         Test listing incidents for a team that does not exist
@@ -90,7 +119,7 @@ class TestOncallView(TestCase):
         Test getting incidents with since being greater than until
         """
         resp = self.client.get(
-            reverse('incidents', kwargs={'team_id': '7de98e0c-8bf9-414c-b397-05acb136935e'}), {'since': '05-01-2019', 'until': '01-01-2019'}
+            reverse('incidents', kwargs={'team_id': '7de98e0c-8bf9-414c-b397-05acb136935e'}), {"since": "05-01-2019", "until": "01-01-2019"}
         )
 
         self.assertEqual(resp.status_code, 400)

@@ -43,19 +43,21 @@ class Oncall(APIView):
         if not Team.objects.filter(id=team_id).exists():
             return JsonResponse({'error': f'{team_id} does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
-        incidents = Incidents.objects.filter(
-            created_at__range=[since.replace(tzinfo=pytz.UTC), until.replace(tzinfo=pytz.UTC)], team__id=team_id
-        ).order_by('-created_at')
+        if since == until:
+            incidents = Incidents.objects.filter(
+                created_at__year=since.year, created_at__month=since.month, created_at__day=since.day, team__id=team_id
+            ).order_by('-created_at')
+        else:
+            incidents = Incidents.objects.filter(
+                created_at__range=[since.replace(tzinfo=pytz.UTC), until.replace(tzinfo=pytz.UTC) + timedelta(days=1)], team__id=team_id
+            ).order_by('-created_at')
 
         for incident in incidents:
             incident_count_by_day.setdefault(incident.created_at.strftime('%Y-%m-%d'), 0)
             incident_count_by_day[incident.created_at.strftime('%Y-%m-%d')] += 1
 
         return JsonResponse(
-            {
-                'incidents': IncidentSerializer(incidents, many=True).data,
-                'incident_count': incident_count_by_day,
-            }, status=status.HTTP_200_OK
+            {'incidents': IncidentSerializer(incidents, many=True).data, 'incident_count': incident_count_by_day}, status=status.HTTP_200_OK
         )
 
     def post(self, request, team_id):
