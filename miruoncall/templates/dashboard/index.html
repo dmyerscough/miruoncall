@@ -21,6 +21,77 @@
     <link rel="stylesheet" type="text/css" href="{% static 'assets/lib/bootstrap-slider/css/bootstrap-slider.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'assets/lib/datatables/css/dataTables.bootstrap.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" type="text/css"/>
+    <style>
+      /* Base for label styling */
+[type="checkbox"]:not(:checked),
+[type="checkbox"]:checked {
+  position: absolute;
+  left: -9999px;
+}
+[type="checkbox"]:not(:checked) + label,
+[type="checkbox"]:checked + label {
+  position: relative;
+  padding-left: 1.95em;
+  cursor: pointer;
+}
+
+/* checkbox aspect */
+[type="checkbox"]:not(:checked) + label:before,
+[type="checkbox"]:checked + label:before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0;
+  width: 1.25em; height: 1.25em;
+  border: 2px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.1);
+}
+/* checked mark aspect */
+[type="checkbox"]:not(:checked) + label:after,
+[type="checkbox"]:checked + label:after {
+  content: '\2713\0020';
+  position: absolute;
+  top: .15em; left: .22em;
+  font-size: 1.3em;
+  line-height: 0.8;
+  color: #09ad7e;
+  transition: all .2s;
+  font-family: 'Lucida Sans Unicode', 'Arial Unicode MS', Arial;
+}
+/* checked mark aspect changes */
+[type="checkbox"]:not(:checked) + label:after {
+  opacity: 0;
+  transform: scale(0);
+}
+[type="checkbox"]:checked + label:after {
+  opacity: 1;
+  transform: scale(1);
+}
+/* disabled checkbox */
+[type="checkbox"]:disabled:not(:checked) + label:before,
+[type="checkbox"]:disabled:checked + label:before {
+  box-shadow: none;
+  border-color: #bbb;
+  background-color: #ddd;
+}
+[type="checkbox"]:disabled:checked + label:after {
+  color: #999;
+}
+[type="checkbox"]:disabled + label {
+  color: #aaa;
+}
+/* accessibility */
+[type="checkbox"]:checked:focus + label:before,
+[type="checkbox"]:not(:checked):focus + label:before {
+  border: 2px dotted blue;
+}
+
+/* hover style just for information */
+label:hover:before {
+  border: 2px solid #4778d9!important;
+}
+    </style>
   </head>
   <body>
     <div class="be-wrapper be-nosidebar-left">
@@ -162,6 +233,40 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="annotateModal" tabindex="-1" role="dialog" aria-labelledby="annotateModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="annotateModalLabel">Add Annotation</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form class="form-horizontal group-border-dashed">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">Did alerts require any action by your team?</label>
+                <div class="col-sm-5 xs-pt-5">
+                  <div class="switch-button switch-button-yesno">
+                    <input type="checkbox" name="teamaction" id="teamaction"><span>
+                      <label for="teamaction"></label></span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">Comments</label>
+                <div class="col-sm-5">
+                  <textarea class="form-control"></textarea>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
     
     <script src="{% static 'assets/lib/jquery/jquery.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'assets/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js' %}" type="text/javascript"></script>

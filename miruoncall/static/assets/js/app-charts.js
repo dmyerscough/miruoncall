@@ -86,7 +86,7 @@ var App = (function () {
       var series = Object.keys(incident).map(function(data){
         return [data,incident[data]];
       });
-      var color1 = App.color.warning;
+      var color1 = "#ff7f00";
 
     	var plot_statistics = $.plot($("#incidents-graph"), [
 	    	{

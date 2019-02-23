@@ -29,7 +29,10 @@ var App = (function () {
       columnDefs: [
         {
           targets: -1, data: "Icon",  defaultContent: '', orderable: false, className: 'select-checkbox',
-          render : function (data, type, row) { return "<span class='icon mdi mdi-comment-edit'></span>" }
+          render : function (data, type, row) { 
+            return "<span id='" 
+                    + row.id 
+                    + "' class='icon mdi mdi-comment-edit' data-toggle='modal' data-target='#annotateModal' title='Add Annotation'></span>" }
         },
         { targets: 2, type: nameType, orderable: false,
           "createdCell": function (td, cellData, rowData, row, col) {
@@ -94,6 +97,8 @@ var App = (function () {
         
       }
     });
+
+    $(".mdi-comment-edit").modal('show');
 
   };
 
