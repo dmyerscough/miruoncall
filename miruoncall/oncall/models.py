@@ -46,7 +46,7 @@ class Incidents(models.Model):
     actionable = models.BooleanField(default=True)
     created_at = models.DateTimeField()
 
-    incident_id = models.TextField(max_length=20, unique=True)
+    incident_id = models.TextField(max_length=20)
 
     annotation = models.ForeignKey(Annotations, on_delete=False, blank=True, null=True)
 
