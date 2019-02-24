@@ -141,6 +141,7 @@ var App = (function () {
       var incidentData = Object.keys(incident).map(function(data){
         return [data,incident[data]];
       });
+      var color1 = "#ff7f00";
 
 		$.plot("#incidents-graph", [ incidentData ], {
 			series: {
@@ -159,7 +160,7 @@ var App = (function () {
             } 
 				}
       },
-      colors: [App.color.warning],
+      colors: [color1],
 			xaxis: {
 				mode: "categories",
 				showTicks: false,

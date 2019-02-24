@@ -27,6 +27,11 @@ var App = (function () {
         
       },
       columnDefs: [
+       /* {
+          orderable: false,
+          className: 'select-checkbox',
+          targets:   0
+      },*/
         {
           targets: -1, data: "Icon",  defaultContent: '', orderable: false, className: 'select-checkbox',
           render : function (data, type, row) { 
@@ -55,10 +60,15 @@ var App = (function () {
         }
     ],
     select: {
-      style:    'os',
-      selector: 'td:first-child'
+      style:    'multi'
   },
       columns: [
+        /*{
+          'data': 'id',
+          'checkboxes': {
+             'selectRow': true
+          }
+       },*/
         { data: 'incident_id', orderable: false},
         { data: 'title', orderable: false},
         { data: 'status', orderable: false},
@@ -68,7 +78,7 @@ var App = (function () {
                 sort: "annotation.created_at"
               }, orderable: false}
       ],
-      order: [[2, 'desc']],
+      order: [[1, 'asc'],[2, 'desc']],
       rowGroup: {dataSrc: 'status'},
       createdRow: function( row, data, index, cells ) {
         for ( var i in data.incidents ) {
