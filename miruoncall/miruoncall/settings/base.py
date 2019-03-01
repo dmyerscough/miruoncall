@@ -174,7 +174,7 @@ CELERYBEAT_SCHEDULE = {
 }
 
 # On the initial import of the team, how far back should we query for incidents. Setting this value to `None` or 0 will exclude look back
-INITIAL_INCIDENT_LOOKBACK = 7
+INITIAL_INCIDENT_LOOKBACK = os.getenv('INCIDENT_LOOKBACK', 7)
 
 # Logging
 LOGGING_CONFIG = None

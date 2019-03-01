@@ -91,7 +91,7 @@ def populate_teams(self):
                     if settings.INITIAL_INCIDENT_LOOKBACK is not None:
                         # When the team bootstrap occurs query the past X days for incidents
                         Team.objects.filter(id=team_.id).update(
-                            last_checked=team_.last_checked - timedelta(days=settings.INITIAL_INCIDENT_LOOKBACK)
+                            last_checked=team_.last_checked - timedelta(days=int(settings.INITIAL_INCIDENT_LOOKBACK))
                         )
 
     except RequestFailure as err:

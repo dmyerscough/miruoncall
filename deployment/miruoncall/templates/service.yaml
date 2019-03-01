@@ -1,0 +1,17 @@
+{{- if and (ne .Values.application.celery.enabled true) (ne .Values.application.celerybeat.enabled true) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "miruoncall.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ .Release.Name }}
+{{ end }}

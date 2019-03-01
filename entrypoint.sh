@@ -8,7 +8,8 @@ start_webapp() {
         --bind :8443 \
         --log-level=info \
         --log-file=/webapp/logs/gunicorn.log \
-        --access-logfile=/webapp/logs/gunicorn-access.log &
+        --access-logfile=/webapp/logs/gunicorn-access.log \
+        --error-logfile=/webapp/logs/gunicorn-error.log
 }
 
 start_celery_worker() {
@@ -23,7 +24,7 @@ start_celery_beat() {
 
 if [[ ${CELERY_WORKER} = true ]]; then
     start_celery_worker
-elif [[ ${CELERY_BEAT} = true ]]; then
+elif [[ ${CELERYBEAT} = true ]]; then
     start_celery_beat
 else
     start_webapp
