@@ -127,3 +127,24 @@ class Teams(APIView):
                 logger.error('Unable to connect to redis')
 
         return JsonResponse({'teams': TeamSerializer(teams, many=True).data}, status=status.HTTP_200_OK)
+
+
+class Incident(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, team_id, incident_id):
+        """
+        Return an individual incident
+
+        :param request:
+        :param team_id:
+        :param incident_id:
+        :return:
+        """
+        try:
+            incident = Incidents.objects.get(id=incident_id, team__id=team_id)
+        except Incidents.DoesNotExist:
+            return JsonResponse({}, status=status.HTTP_404_NOT_FOUND)
+
+        return JsonResponse(IncidentSerializer(incident).data, status=status.HTTP_200_OK)
