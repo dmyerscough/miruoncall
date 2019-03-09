@@ -88,11 +88,11 @@ class Oncall(APIView):
                     incident.annotation = annotation
 
                 if actionable is not None:
-                    incident.actionable = actionable
+                    incident.actionable = bool(actionable)
 
                 incident.save()
-            except (ValueError, ValidationError):
-                logger.error(f'Invalid incident id: {incident_id}')
+            except (ValueError, ValidationError) as err:
+                logger.error(f'Invalid incident id: {incident_id} - {err}')
 
                 return JsonResponse({'error': f'Invalid incident id: {incident_id}'}, status=status.HTTP_400_BAD_REQUEST)
             except Incidents.DoesNotExist:

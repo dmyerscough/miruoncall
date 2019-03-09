@@ -5262,6 +5262,9 @@ button.close {
     margin-left: -1px; }
   .modal-footer .btn-block + .btn-block {
     margin-left: 0; }
+  .modal-footer button {
+    margin-top: 20px;
+  }
 
 .modal-scrollbar-measure {
   position: absolute;
@@ -8736,7 +8739,8 @@ canvas {
   background-color: #ffffff;
   padding: 20px;
   margin-bottom: 25px;
-  border-radius: 3px; }
+  border-radius: 3px; 
+  border-top: 2px solid #4c8bf5;}
   .widget.widget-fullwidth {
     padding: 0; }
     .widget.widget-fullwidth .widget-head {
@@ -8809,7 +8813,8 @@ canvas {
       left: auto; }
 
 .widget-chart-container {
-  position: relative; }
+  position: relative; 
+  padding-left: 20px;}
   .widget-chart-container .counter {
     min-height: auto;
     top: 0;
@@ -12872,7 +12877,8 @@ pre {
   -webkit-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.04);
           box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.04);
   border-width: 0;
-  border-radius: 3px; }
+  border-radius: 3px; 
+  border-top: 2px solid #4c8bf5;}
 
 .panel-body {
   padding: 8px 20px 20px;
@@ -12897,13 +12903,10 @@ pre {
       line-height: 25px;
       vertical-align: middle;
       cursor: pointer;
-      color: #bababa;
       min-width: 20px;
       text-align: center; }
       .panel-heading .tools .icon + .icon {
         margin-left: 2px; }
-      .panel-heading .tools .icon:hover {
-        color: #a6a6a6; }
 
 .panel-title {
   font-size: 18px;
@@ -14576,7 +14579,8 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 
 div.dataTables_wrapper div.dataTables_filter input {
   padding-top: 6px;
-  padding-bottom: 6px; }
+  padding-bottom: 6px; 
+  margin-top: 10px;}
 
 div.dataTables_wrapper div.dataTables_length label, div.dataTables_wrapper div.dataTables_filter label {
   margin-bottom: 0;

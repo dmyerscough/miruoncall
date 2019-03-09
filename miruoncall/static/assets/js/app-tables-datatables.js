@@ -2,6 +2,11 @@ var App = (function () {
   'use strict';
 
   App.dataTables = function( ){
+    const csrftoken = $.cookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
 
     //We use this to apply style to certain elements
     $.extend( true, $.fn.dataTable.defaults, {
@@ -18,28 +23,46 @@ var App = (function () {
     var start = moment().subtract(7, 'days');
     var end = moment();
     var teamID = $("#teams").find(":selected").val();
+    var teamName = $("#teams").find(":selected").text();
+    $("#team-name").html(teamName);
 
-    $("#table1").dataTable({
+    var table = $("#table1").dataTable({
+      rowId: 'id',
       ajax: {
         
         url: "/incidents/"+ teamID+ "/?since="+start.format('YYYY-MM-DD')+"&until="+end.format('YYYY-MM-DD'),
-        dataSrc: "incidents",
-        
+        dataSrc: "incidents",      
       },
+      
+      initComplete: function(settings, json) {
+        console.log("initComplete app-tables-datatables");
+        $("div.be-loading").removeClass("be-loading-active");
+        
+         // Enable Add Annotation button if a checkbox is selected
+        $('input[type=checkbox]').change(function () {
+         
+        if ($("input:checkbox:checked").length > 0) {
+          $("#addAnnotation").prop('disabled', false);
+          console.log($("input:checkbox:checked").length);
+        }
+        else {
+          $("#addAnnotation").prop('disabled', true);
+        }
+      });
+      },  
       columnDefs: [
-       /* {
-          orderable: false,
-          className: 'select-checkbox',
-          targets:   0
-      },*/
         {
-          targets: -1, data: "Icon",  defaultContent: '', orderable: false, className: 'select-checkbox',
-          render : function (data, type, row) { 
-            return "<span id='" 
-                    + row.id 
-                    + "' class='icon mdi mdi-comment-edit' data-toggle='modal' data-target='#annotateModal' title='Add Annotation'></span>" }
-        },
-        { targets: 2, type: nameType, orderable: false,
+          targets: -1, data: {
+            _:    "annotation.annotation",
+            sort: "annotation.created_at"
+          },  defaultContent: '',
+          "createdCell": function (td, cellData, rowData, row, col) {
+            if ( $(td).text() ) {
+              $(td).html('<i class="icon icon-left mdi mdi-comment-text" data-toggle="modal" data-target="#annotateEditModal"></i>')
+            }
+          }
+          },
+        { targets: 3, type: nameType, orderable: false,
           "createdCell": function (td, cellData, rowData, row, col) {
             if ( $(td).text() == "triggered" ) {
               $(td).html('<span class="label label-danger">Triggered</span>')
@@ -53,22 +76,22 @@ var App = (function () {
           } 
         },
 
-          {targets: 3, "createdCell": function (td, cellData, rowData, row, col) {
+          {targets: 4, "createdCell": function (td, cellData, rowData, row, col) {
             var d = moment(cellData).format("dddd, MMMM Do YYYY, h:mm:ss a");
             $(td).html(d);
           } 
-        }
+        },
     ],
     select: {
       style:    'multi'
   },
       columns: [
-        /*{
+        {
           'data': 'id',
           'checkboxes': {
              'selectRow': true
           }
-       },*/
+       },
         { data: 'incident_id', orderable: false},
         { data: 'title', orderable: false},
         { data: 'status', orderable: false},
@@ -76,39 +99,94 @@ var App = (function () {
         { data: {
                 _:    "annotation.annotation",
                 sort: "annotation.created_at"
-              }, orderable: false}
+              }}
       ],
-      order: [[1, 'asc'],[2, 'desc']],
-      rowGroup: {dataSrc: 'status'},
-      createdRow: function( row, data, index, cells ) {
-        for ( var i in data.incidents ) {
+      order: [[4, 'desc'], [ 3, 'desc' ]],
+      rowGroup: {
+        dataSrc: 'status',
+        startRender: function(rows, group) {
           var label;
-                if (incident.status=="resolved") {
-                    label = '<span class="label label-success">'+incident.status.toUpperCase()+'</span>';
+                if (group=="resolved") {
+                  console.log(rows);
+                    label = '<span class="label label-success">'+group.toUpperCase()+'</span>';
                     return label;
                 }
-                else if (incident.status=="acknowledged") {
-                    label = '<span class="label label-primary">'+incident.status.toUpperCase()+'</span>';
+                else if (group=="acknowledged") {
+                  console.log(rows);
+                    label = '<span class="label label-warning">'+group.toUpperCase()+'</span>';
                     return label;
                 }
-                else if (incident.status=="triggered") {
-                    label = '<span class="label label-warning">'+incident.status.toUpperCase()+'</span>';
+                else if (group=="triggered") {
+                    label = '<span class="label label-danger">'+group.toUpperCase()+'</span>';
                     return label;
                 }
-                
-        }
-        var headers = $(".group-start");
-        for (var h=0; h<headers.length; h++) {
-          if (cells[0].innerText == "acknowledged") {$(headers[h]).html('<td class="warning" colspan="5"><span class="icon mdi mdi-alert-triangle text-warning"></span> Acknowledged</td>')};
-          //if (cells[0].innerText == "triggered") {$(headers[h]).html('<td class="danger" colspan="5"><span class="icon mdi mdi-notifications text-danger"></span> Triggered</td>')};
-          //if (cells[0].innerText == "resolved") {$(headers[h]).html('<td class="success" colspan="5"><span class="icon mdi mdi-info text-success"></span> Resolved</td>')};
-         // if (cells[0].innerText == "acknowledged") {$("td", row).eq(0).html('<td class="warning" colspan="5"><span class="icon mdi mdi-alert-triangle text-warning"></span> Acknowledged</td>')};
-        }
-        
+                $(".mdi-info").closest("td").addClass("success");
+
+
       }
+    }
+    });
+ 
+
+    $('#annotateModal').on('show.bs.modal', function (e) {
+      
+      $("#addNewAnnotation").on("click", function (e) {
+        console.log(table);
+        var id = [];
+
+        var selected_rows = $("input:checkbox:checked");
+        // Iterate over all selected checkboxes
+        $.each(selected_rows, function(index, el){
+          var tr = $(el).closest("tr");
+          id.push($(tr).attr("id"));
+        });
+        // Remove the "select all" checkbox from array
+        id.shift();
+        console.log(id);
+        $.ajax({
+          type: "POST",
+          url: "/incidents/"+teamID+"/",
+          data: { 
+              incident_ids: id.join(","),
+              annotation: $("#annotateEditInput").val() ,
+              actionable: $("#teamaction").val() == "on" ? true : false
+          },
+          beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+           },
+          success: function(result) {
+              alert('ok');
+          },
+          error: function(result) {
+              alert('error');
+          }
+      });
+
+      })
+      
     });
 
-    $(".mdi-comment-edit").modal('show');
+    $('#annotateEditModal').on('show.bs.modal', function (e) {
+      var icon = $(e.relatedTarget);
+      var tr = $(icon).closest("tr");
+      var incident_id = $(tr).attr("id");
+      var modal = $(this);
+      $.ajax({
+        type: "GET",
+        url: "/incident/"+teamID+"/"+incident_id,
+        
+        success: function(result) {
+            // Set annotation values in popup modal
+            modal.find("#annotateEditInput input").val(result.incidents.annotation);
+        },
+        error: function(result) {
+            alert('error');
+        }
+    });
+
+    });
 
   };
 
