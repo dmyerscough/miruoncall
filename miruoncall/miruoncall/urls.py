@@ -16,10 +16,12 @@ Including another URLconf
 from django.conf import settings
 from django.urls import include, path
 
+from miruoncall.views import healthz
 from oncall import urls as oncall_urls
 
 urlpatterns = [
     path('', include(oncall_urls)),
+    path('healthz/', healthz, name='healthz')
 ]
 
 if settings.DEBUG:
