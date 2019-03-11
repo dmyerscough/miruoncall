@@ -142,6 +142,7 @@ class TestOncallView(TestCase):
             reverse('incidents', kwargs={'team_id': '7de98e0c-8bf9-414c-b397-05acb136935e'})
         )
 
+        self.maxDiff = None
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), {
             'incident_count': {self.creation_time.strftime('%Y-%m-%d'): 1},

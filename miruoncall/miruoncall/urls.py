@@ -15,13 +15,19 @@ Including another URLconf
 """
 from django.conf import settings
 from django.urls import include, path
+from rest_framework.authtoken import views
 
+from account import urls as account_urls
+from dashboard import urls as dashboard_urls
 from miruoncall.views import healthz
 from oncall import urls as oncall_urls
 
 urlpatterns = [
     path('', include(oncall_urls)),
-    path('healthz/', healthz, name='healthz')
+    path('accounts/', include(account_urls)),
+    path('auth/', views.obtain_auth_token),
+    path('dashboard/', include(dashboard_urls)),
+    path('healthz/', healthz, name='healthz'),
 ]
 
 if settings.DEBUG:

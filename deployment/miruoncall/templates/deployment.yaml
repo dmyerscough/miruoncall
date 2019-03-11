@@ -22,6 +22,10 @@ spec:
             - name: secrets
               mountPath: "/secrets"
               readOnly: true
+            {{- if and (ne .Values.application.celery.enabled true) (ne .Values.application.celerybeat.enabled true) }}
+            - name: nginx-config
+              mountPath: /etc/nginx/sites-enabled/
+            {{- end }}
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: "{{ .Values.application.settings }}"
@@ -52,9 +56,9 @@ spec:
                 secretKeyRef:
                   name: miruoncall-{{ .Release.Name }}-secrets
                   key: PAGERDUTY_KEY
-            - name: GENERIC_CACHE
+            - name: REDIS_GENERIC_CACHE
               value: "{{ .Values.application.generic_cache }}"
-            - name: SESSION_CACHE
+            - name: REDIS_SESSION_CACHE
               value: "{{ .Values.application.session_cache }}"
             - name: CELERY_BROKER_URL
               value: "{{ .Values.application.celery_broker }}"
@@ -102,3 +106,11 @@ spec:
               - key: key
                 path: database/ssl/db.key
                 mode: 0600
+        {{- if and (ne .Values.application.celery.enabled true) (ne .Values.application.celerybeat.enabled true) }}
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+            items:
+              - key: nginx.conf
+                path: default.conf
+        {{- end }}

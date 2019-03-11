@@ -66,7 +66,7 @@ class Oncall(APIView):
         """
         incident_ids = request.data.get('incident_ids', request.GET.get('incident_ids'))
         annotation_message = request.data.get('annotation', request.GET.get('annotation'))
-        actionable = request.data.get('actionable', request.GET.get('actionable'))
+        actionable = True if request.data.get('actionable', request.GET.get('actionable')) == 'true' else False
 
         if incident_ids is None:
             return JsonResponse({'error': 'incident_ids is a required argument'}, status=status.HTTP_400_BAD_REQUEST)

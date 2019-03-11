@@ -1,13 +1,48 @@
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
-  name: miruoncall-{{ .Release.Name }}-secrets
-type: Opaque
+  name: nginx-config
 data:
-  DJANGO_SECRET_KEY: {{ .Values.application.django_secret_key | b64enc }}
-  PAGERDUTY_KEY: {{ .Values.application.pagerduty | b64enc }}
-  DATABASE_PASSWORD: {{ .Values.application.database.password | b64enc }}
-
-  ca: ''
-  cert: ''
-  key: ''
+  nginx.conf: |
+    upstream miruoncall_app_server {
+      server unix:/webapp/run/gunicorn.sock fail_timeout=0;
+    }
+    server {
+        listen   {{ .Values.application.port }} default_server;
+        server_name {{- range .Values.ingress.hosts }} {{ . }} {{- end }} ;
+        client_max_body_size 4G;
+        access_log /webapp/logs/nginx-access.log;
+        error_log /webapp/logs/nginx-error.log;
+        location /static/ {
+            alias   /webapp/miruoncall/static/;
+        }
+        error_page 404 /40x.html;
+        location = /40x.html {
+            root /webapp/miruoncall/static/error/;
+            internal;
+        }
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root /webapp/miruoncall/static/error/;
+            internal;
+        }
+        location / {
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            # enable this if and only if you use HTTPS, this helps Rack
+            # set the proper protocol for doing redirects:
+            # proxy_set_header X-Forwarded-Proto https;
+            # pass the Host: header from the client right along so redirects
+            # can be set properly within the Rack application
+            proxy_set_header Host $http_host;
+            # we don't want nginx trying to do something clever with
+            # redirects, we set the Host: header above already.
+            proxy_redirect off;
+            proxy_intercept_errors on;
+            # Try to serve static files from nginx, no point in making an
+            # *application* server like Unicorn/Rainbows! serve static files.
+            if (!-f $request_filename) {
+                proxy_pass http://miruoncall_app_server;
+                break;
+            }
+        }
+    }

@@ -5,11 +5,14 @@ start_webapp() {
     exec gunicorn miruoncall.wsgi:application \
         --name miruoncall \
         --workers 5 \
-        --bind :8443 \
+        --bind=unix:/webapp/run/gunicorn.sock \
         --log-level=info \
         --log-file=/webapp/logs/gunicorn.log \
         --access-logfile=/webapp/logs/gunicorn-access.log \
-        --error-logfile=/webapp/logs/gunicorn-error.log
+        --error-logfile=/webapp/logs/gunicorn-error.log &
+
+    echo "Starting Nginx"
+    exec nginx -g "daemon off;"
 }
 
 start_celery_worker() {
