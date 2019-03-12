@@ -351,26 +351,52 @@ var App = (function () {
   
       }
 
+      $("#addAnnotation").on("click", function(e) {
+        var selected_rows = $("input:checkbox:checked");
+        if (selected_rows.length == 0) {
+          $("#annotateInfo").modal();
+          $("#annotateModal").modal('hide');
+        }
+  
+        if (selected_rows.length<=2 &&  selected_rows>=1) {
+          var tr = $("input:checkbox:checked")[1].closest("tr");
+          var incident_id = $(tr).attr("id");
+  
+          $.ajax({
+            type: "GET",
+            url: "/incident/"+teamID+"/"+incident_id,
+            
+            success: function(result) {
+                // Set annotation values in popup modal
+                modal.find("input#annotateEditInput").val(result.annotation.annotation);
+                
+            },
+            error: function(result) {
+                console.log(result);
+            }
+          });
+        }
+      });
+
       $('#annotateModal').on('show.bs.modal', function (e) {
       
         $("#addNewAnnotation").on("click", function (e) {
-          var id = [];
           var teamID = $("#teams").find(":selected").val();
-  
+          var id;
           var selected_rows = $("input:checkbox:checked");
           // Iterate over all selected checkboxes
           $.each(selected_rows, function(index, el){
             var tr = $(el).closest("tr");
-            id.push($(tr).attr("id"));
+            id = $(tr).attr("id");
           });
           // Remove the "select all" checkbox from array
-          id.shift();
-          console.log(id);
+          //id.shift();
+          
           $.ajax({
             type: "POST",
             url: "/incidents/"+teamID+"/",
             data: { 
-                incident_ids: id.join(","),
+                incident_ids: id,
                 annotation: $("#annotateEditInput").val() ,
                 actionable: $("#teamaction").val() == "on" ? true : false
             },

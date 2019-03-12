@@ -11428,7 +11428,8 @@ pre {
 .btn-danger {
   color: #fff;
   background-color: #ea4335;
-  border-color: #ea4335; }
+  border-color: #ea4335;
+  float:left; }
   .btn-danger:focus, .btn-danger.focus {
     color: #fff;
     background-color: #ea4335;
