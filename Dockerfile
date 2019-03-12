@@ -12,6 +12,6 @@ COPY entrypoint.sh /webapp/
 
 RUN pip3 --no-cache-dir install -r /webapp/requirements/base.txt
 
-WORKDIR /webapp/mirussh
+WORKDIR /webapp/miruoncall
 
 CMD ["/bin/bash", "/webapp/entrypoint.sh"]

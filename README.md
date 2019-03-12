@@ -84,3 +84,23 @@ $ curl -s -X POST -H "Content-Type: application/json" -d '{"actionable": true}' 
 $ docker build -t quay.io/dmyerscough/miruoncall:0.0.1 .
 $ docker push quay.io/dmyerscough/miruoncall:0.0.1
 ```
+
+## Deployment
+
+Template out the deployment using Helm
+
+```bash
+helm template miruoncall --name miruoncall --set application.django_secret_key="XXXX" --set application.pagerduty="XXXX"
+```
+
+# Deploy Celerybeat
+
+```bash
+helm template miruoncall --name celerybeat --set application.celerybeat.enabled=true
+```
+
+# Deploy Celery Worker
+
+```bash
+helm template miruoncall --name celery --set application.celery.enabled=true
+```

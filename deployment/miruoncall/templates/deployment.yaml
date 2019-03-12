@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "miruoncall.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: secrets
+              mountPath: "/secrets"
+              readOnly: true
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: "{{ .Values.application.settings }}"
+            - name: DJANGO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: miruoncall-{{ .Release.Name }}-secrets
+                  key: DJANGO_SECRET_KEY
+            - name: DATABASE
+              value: "{{ .Values.application.database.name }}"
+            - name: DATABASE_USERNAME
+              value: "{{ .Values.application.database.username }}"
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: miruoncall-{{ .Release.Name }}-secrets
+                  key: DATABASE_PASSWORD
+            - name: DATABASE_HOSTNAME
+              value: "{{ .Values.application.database.hostname }}"
+            - name: DATABASE_PORT
+              value: "{{ .Values.application.database.port }}"
+            - name: CELERY_WORKER
+              value: "{{ .Values.application.celery.enabled }}"
+            - name: CELERYBEAT
+              value: "{{ .Values.application.celerybeat.enabled }}"
+            - name: PAGERDUTY_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: miruoncall-{{ .Release.Name }}-secrets
+                  key: PAGERDUTY_KEY
+            - name: GENERIC_CACHE
+              value: "{{ .Values.application.generic_cache }}"
+            - name: SESSION_CACHE
+              value: "{{ .Values.application.session_cache }}"
+            - name: CELERY_BROKER_URL
+              value: "{{ .Values.application.celery_broker }}"
+            - name: ROOT_CERT
+              value: "{{ .Values.application.database.ssl.ca }}"
+            - name: SSL_CERT
+              value: "{{ .Values.application.database.ssl.cert }}"
+            - name: SSL_KEY
+              value: "{{ .Values.application.database.ssl.key }}"
+            - name: INCIDENT_LOOKBACK
+              value: "{{ .Values.application.incident_lookback }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.application.port }}
+              protocol: TCP
+          {{- if and (ne .Values.application.celery.enabled true) (ne .Values.application.celerybeat.enabled true) }}
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: {{ index .Values.ingress.hosts 0 }}
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: {{ index .Values.ingress.hosts 0 }}
+          {{ end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      imagePullSecrets:
+        - name: gke-pull-secret
+      volumes:
+        - name: secrets
+          secret:
+            secretName: miruoncall-{{ .Release.Name }}-secrets
+            items:
+              - key: ca
+                path: database/ssl/ca.pem
+              - key: cert
+                path: database/ssl/db.crt
+              - key: key
+                path: database/ssl/db.key
+                mode: 0600

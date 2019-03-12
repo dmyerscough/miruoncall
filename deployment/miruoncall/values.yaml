@@ -1,0 +1,77 @@
+
+replicaCount: 1
+
+image:
+  repository: quay.io/dmyerscough/miruoncall
+  tag: 0.0.1
+  pullPolicy: Always
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: enable
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: letsencrypt
+  paths: ['/']
+  email: ''
+  hosts:
+    - oncall.mirulabs.com
+  tls:
+    - secretName: letsencrypt
+      hosts:
+        - oncall.mirulabs.com
+
+application:
+  celery:
+    enabled: false
+  celerybeat:
+    enabled: false
+
+  generic_cache: "redis://miruoncall-redis-master.oncall.svc.cluster.local:6379/0"
+  session_cache: "redis://miruoncall-redis-master.oncall.svc.cluster.local:6379/1"
+  celery_broker: "redis://miruoncall-redis-master.oncall.svc.cluster.local:6379/2"
+
+  database:
+    username: ''
+    password: ''
+    hostname: ''
+
+    name: 'miruoncall'
+    port: '3306'
+
+    ssl:
+      ca: '/secrets/database/ssl/ca.pem'
+      cert: '/secrets/database/ssl/db.crt'
+      key: '/secrets/database/ssl/db.key'
+
+  django_secret_key: ''
+  pagerduty: ''
+
+  settings: 'miruoncall.settings.production'
+  incident_lookback: 30
+
+  port: 8443
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
