@@ -148,3 +148,21 @@ class Incident(APIView):
             return JsonResponse({}, status=status.HTTP_404_NOT_FOUND)
 
         return JsonResponse(IncidentSerializer(incident).data, status=status.HTTP_200_OK)
+
+    def delete(self, request, team_id, incident_id):
+        """
+        Delete an annotation from an incident
+
+        :param team_id:
+        :param incident_id:
+        :return:
+        """
+        try:
+            incident = Incidents.objects.get(id=incident_id, team__id=team_id)
+        except Incidents.DoesNotExist:
+            return JsonResponse({}, status=status.HTTP_404_NOT_FOUND)
+
+        incident.annotation = None
+        incident.save()
+
+        return JsonResponse({'message': 'annotation removed'}, status=status.HTTP_200_OK)
