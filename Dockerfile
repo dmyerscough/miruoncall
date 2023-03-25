@@ -4,7 +4,11 @@ MAINTAINER Damian Myerscough
 RUN mkdir -p /webapp/miruoncall && \
     mkdir -p /webapp/requirements && \
     mkdir -p /webapp/run && \
-    mkdir -p /webapp/logs
+    mkdir -p /webapp/logs && \
+    apt-get update -y && \
+    apt-get install -y nginx-light && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY miruoncall /webapp/miruoncall/
 COPY requirements/base.txt /webapp/requirements/

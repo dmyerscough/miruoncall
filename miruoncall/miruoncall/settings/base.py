@@ -31,6 +31,8 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
+    'account',
+    'dashboard',
     'oncall',
 )
 
@@ -175,6 +177,9 @@ CELERYBEAT_SCHEDULE = {
 
 # On the initial import of the team, how far back should we query for incidents. Setting this value to `None` or 0 will exclude look back
 INITIAL_INCIDENT_LOOKBACK = os.getenv('INCIDENT_LOOKBACK', 7)
+
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Logging
 LOGGING_CONFIG = None
