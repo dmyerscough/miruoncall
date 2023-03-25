@@ -112,7 +112,7 @@ class TestOncallView(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.json(), {'error': f'9de98e0c-8bf9-414c-b397-05acb136935f does not exist'})
+        self.assertEqual(resp.json(), {'error': '9de98e0c-8bf9-414c-b397-05acb136935f does not exist'})
 
     def test_listing_incidents_invalid_date_rage(self):
         """

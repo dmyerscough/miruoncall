@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField()),
                 ('incident_id', models.TextField(max_length=20)),
                 ('urgency', models.TextField(max_length=15)),
-                ('annotation', models.ForeignKey(blank=True, null=True, on_delete=False, to='oncall.Annotations')),
+                ('annotation', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='oncall.Annotations')),
             ],
         ),
         migrations.CreateModel(

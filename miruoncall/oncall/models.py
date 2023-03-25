@@ -48,7 +48,7 @@ class Incidents(models.Model):
 
     incident_id = models.TextField(max_length=20)
 
-    annotation = models.ForeignKey(Annotations, on_delete=False, blank=True, null=True)
+    annotation = models.ForeignKey(Annotations, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     urgency = models.TextField(max_length=15)
 
